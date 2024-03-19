@@ -1,0 +1,210 @@
+<!-- websites/input_todo_tasks.html -->
+
+<title>To Do Task</title>
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<style>
+    /* CSS styles for input boxes */
+    .tick-inside {
+        color: #5AB16147; /* Color for tick */
+        font-size: 14px; /* Adjust size as needed */
+    }
+    .tick-inside:hover {
+        color: green; /* Color for tick */
+        font-size: 14px; /* Adjust size as needed */
+    }
+    input {
+        width: 100%;  /* Adjust the width as needed */
+        height: 40px; /* Adjust the height as needed */
+    }
+    .error-message {
+        color: red;
+    }
+    .short_input_task-card {
+        margin-bottom: 5px; /* Adjust the margin bottom as needed */
+    }
+    .task-card {
+        margin-bottom: 3px; /* Adjust the margin bottom as needed */
+    }
+    .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    }
+</style>
+
+<div class="row" style="margin: 1px">
+<!--    block 1 short input and tasks list start-->
+    <div class="col-md-6">
+        {% if todotask.task_name %}
+            <!--update to do task: ----------------------------------------->
+            <div class="card card-body">
+<!--                top right corner <close>-->
+                 <a href="{% url 'input_todo_tasks' %}" class="close-btn"><I class="fas fa-times"></i></a>
+                <p></p>
+                <h5>To do task (detail / update)</h5>
+                <p></p>
+                <form method="post" enctype="multipart/form-data" id="todoForm">{% csrf_token %}
+                    <input id="task_name" name="task_name" placeholder="input task..." required
+                           onkeydown="moveToNextInput(event, 'task_reminder1_date')"
+                           value="{{ todotask.task_name }}">
+                    <br>
+                    <p></p>
+                        <label>Reminder Date:</label>
+                        <input id="task_reminder1_date" name="task_reminder1_date" placeholder="yyyy-mm-dd..."
+                               onkeydown="focusNextInput(event, null, 'task_due_date')"
+                               value="{{ todotask.task_reminder1_date|date:'Y-m-d' }}">
+                    <br>
+                    <p></p>
+                        <label>Due Date:</label>
+                        <input id="task_due_date" name="task_due_date" placeholder="yyyy-mm-dd..."
+                               onkeydown="focusNextInput(event, null, 'todotask_form_submit')"
+                               value="{{ todotask.task_due_date|date:'Y-m-d' }}">
+                    <br>
+                    {% if todotask_form.errors %}
+                        <div class="error-message">Date format should be yyyy-mm-dd</div>
+                    {% endif %}
+
+                    <p></p>
+                    <button id="todotask_form_submit-{{task.id}}" type="submit" style="width: 100%; padding: 5px 0;" name="todotask_form_submit"> Save & Close</button>
+                </form>
+            </div>
+        {% else %}
+            <!--list all to do task: ----------------------------------------->
+            <!--        reminder task start-->
+            <div class="row" style="margin-left: 20px; color: red;">
+                {% if reminder_tasks %}
+                    <p></p>
+                    <i class="fas fa-bell" style="color: #E09B04; font-size: 24px;"></i>
+                {% endif %}
+
+                {% for task in reminder_tasks %}
+                    <div class="col-md-4"> <!-- Assuming you are using Bootstrap for a 12-column grid system, adjust the number accordingly -->
+                        <a href="{% url 'update_todo_task' task.id %}" class="blue-link ellipsis-link">
+                            {% if task.task_name|length > 25 %}
+                                {{ task.task_name|slice:":25" }}...
+                            {% else %}
+                                {{ task.task_name }}
+                            {% endif %}
+                        </a>
+                        <br>
+
+                        <i class="fas fa-clock" style="color: #B3A702; font-size:10px"> {{ task.task_reminder1_date|date:"Y-m-d" }}</i>
+                        <i class="fas fa-clock" style="color: #99350B; font-size:10px"> {{ task.task_due_date|date:"Y-m-d" }}</i>
+                        <a href="{% url 'mark_task_done' task.id %}" ><i class="fas fa-check-circle tick-inside" style="font-size: 12px"></i></a>
+                    </div>
+                    {% if forloop.counter|divisibleby:6 and not forloop.last %}
+                        </div><div class="row" style="margin-left: 20px; color: red;">
+                    {% endif %}
+                {% endfor %}
+                <p></p>
+            </div>
+            <!--        reminder task end-->
+            <div class="card card-body short_input_task-card">
+                <div class="row"> <!-- input task shortly and quickly -->
+                    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                        <a href="{% url 'input_todo_tasks' %}" style="margin-right: 20px;" class="blue-link"><i class="fas fa-plus-circle"></i></a>
+                        <input name="task_name" placeholder="Add a task…" style="width: 80%; height: 30px;" autofocus>
+                        <button id="todotask_form_submit1" type="submit" style="display: none;" name="todotask_form_submit"> Save</button>
+                    </form>
+                </div>
+            </div>
+            {% for task in tasks %}
+                <div class="card card-body task-card">
+                    <div class="row">
+                        <div class="col-md-9"> <!-- Adjust the column width as needed -->
+                            <a href="{% url 'mark_task_done' task.id %}"><i class="fas fa-check-circle tick-inside" style="font-size: 16px"></i></a>
+                            <a href="{% url 'update_todo_task' task.id %}" class="blue-link ellipsis-link">{{ task.task_name }}</a>
+                        </div>
+                        <div class="col-md-3 text-right"> <!-- Align to the right -->
+                            {% if task.task_reminder1_date %}
+                                <a href="{% url 'update_todo_task' task.id %}">
+                                <i class="fas fa-clock" style="color: #B3A702; font-size:10px; margin-right: 10px;"> {{ task.task_reminder1_date|date:"Y-m-d" }}</i>
+                                </a>
+                            {% endif %}
+                            {% if task.task_due_date %}
+                                <a href="{% url 'update_todo_task' task.id %}">
+                                <i class="fas fa-clock" style="color: #99350B; font-size:10px;"> {{ task.task_due_date|date:"Y-m-d" }}</i>
+                                </a>
+                            {% endif %}
+
+                            {% if task.task_reminder1_date and task.task_due_date %}
+                            {% else %}
+                                <a href="{% url 'update_todo_task' task.id %}" class="blue-link ellipsis-link">
+                                    <i class="lni lni-alarm-clock"></i>
+                                </a>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<!--Date picker and enter to move to next input, and 20240314 auto to 2024-03-15-->
+<script>
+    function formatNumericDate(inputElement) {
+    const inputValue = inputElement.value;
+    const formattedDate = inputValue.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+    inputElement.value = formattedDate;
+}
+
+function moveFocusOnEnter(event, nextInputId, submitButtonId) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        if (nextInputId) {
+            document.getElementById(nextInputId).focus();
+        } else if (submitButtonId) {
+            document.getElementById(submitButtonId).focus();
+        }
+    }
+}
+    // after input task name, press enter to jump to reminder1 date
+    function moveToNextInput(event, nextInputId) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            if (nextInputId) {
+                document.getElementById(nextInputId).focus();
+            }
+        }
+    }
+
+// Enable datepicker for date fields
+$(document).ready(function () {
+    $("#task_reminder1_date, #task_due_date").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeMonth: true,
+        changeYear: true,
+        changeDay: true
+    });
+
+    // Add event listener to date input fields for numeric formatting and focus handling
+    $("#task_reminder1_date").on('input', function () {
+        formatNumericDate(this);
+    });
+
+    // Add event listener for 'Enter' key on task_reminder1_date field
+    $("#task_reminder1_date").on('keypress', function (event) {
+        if (event.key === "Enter" && this.value.length === 10) {
+            moveFocusOnEnter(event, 'task_due_date', 'todotask_form_submit');
+        }
+    });
+
+    // Add event listener to date input fields for numeric formatting
+    $("#task_due_date").on('input', function () {
+        formatNumericDate(this);
+    });
+});
+
+</script>
+
+{% endblock content %}

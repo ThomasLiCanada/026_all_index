@@ -1,0 +1,234 @@
+<!-- websites/desktop.html -->
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .image-resize {
+        width: 300px;
+        height: 250px;
+    }
+    .rounded-image {
+        border-radius: 20%;
+        width: 50px; /* Set the desired width */
+        height: 50px; /* Set the desired height */
+    }
+    .image-enlarge {
+        width: 300px; /* Set the desired width */
+        /* The height will adjust automatically to maintain the aspect ratio */
+    }
+    .small-text {
+        font-size: 10px; /* Set the desired font size */
+    }
+    .sortable-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start; /* Align items to the left */
+    }
+
+    .draggable-item {
+        margin: 10px;
+        flex: 0 0 calc(10% - 20px); /* Adjust the width of each item based on the desired layout */
+    }
+    .long-press-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        display: none;
+    }
+    .ellipsis-link {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 85%;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!--update the order of the index, i.e. change value of the index_position_num -->
+<script>
+    var pressTimer;
+    var longPressDuration = 2000; // 2 seconds
+
+    $(document).ready(function() {
+        $(".sortable-container").sortable({
+            update: function(event, ui) {
+                // Get the order of elements after dragging
+                var order = $(this).sortable('toArray', { attribute: 'data-index-id' });
+                console.log(order);
+
+                // Send the updated order to the server using AJAX
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "update_order" %}',
+                    data: {
+                        'order': order.join(','),
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        // Optionally handle the server response
+                    }
+                });
+            }
+        });
+
+        $(".sortable-container").disableSelection();
+    });
+</script>
+
+<!--recent clicked index Start-->
+<p></p>
+<div class="container">
+    <div class="sortable-container">
+        {% for index in indexes %}
+            <div class="col-md-1 d-flex justify-content-center draggable-item">
+                {% if index.website_image %}
+                    <!-- for "New" or "Delete" or "To Do", not open in new tab-->
+                        <a href="{{ index.address }}" target="_blank" onclick="recordClick({{ index.id }})">
+                            <img class="card-img-top rounded-image" src="{{ index.website_image.url }}" alt="icon"> <br>
+                            <p class="blue-link small-text text-center">
+                                <!--if key_words more than 10, only show 10 letters-->
+                                {% if index.key_words|length > 10 %}
+                                    {{ index.key_words|slice:":10" }}...
+                                {% else %}
+                                    {{ index.key_words }}
+<!--                                    start: To Do icon add the number of to do tasks-->
+                                    {% if index.key_words == "ToDo" %}
+                                        <div>
+                                            <p>
+                                                {% if total_reminder_tasks %}
+                                                    <a href="{% url 'input_todo_tasks' %}" style="text-decoration: none; display: block;">
+                                                        <div style="background-color: red; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px;">
+                                                            <span style="color: white; font-size: 14px;">{{total_reminder_tasks}}</span>
+                                                        </div>
+                                                    </a>
+                                                {% endif %}
+                                                {% if total_tasks %}
+                                                    <a href="{% url 'input_todo_tasks' %}" style="text-decoration: none; display: block; margin-top: 5px;">
+                                                        <div style="background-color: green; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px;">
+                                                            <span style="color: white; font-size: 14px;">{{total_tasks}}</span>
+                                                        </div>
+                                                    </a>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </a>
+                {% else %}
+                     <div>
+                        <a href="{% url 'index_add_icon' index.id %}">
+                            <img class="card-img-top rounded-image" src="/media/website_image/AddIcon.PNG" alt="icon">
+                        </a>
+                        <p class="blue-link small-text text-center">
+                            <a href="{{ index.address }}" target="_blank" onclick="recordClick({{ index.id }})">
+                                <!-- if key_words more than 10, only show 10 letters-->
+                                {% if index.key_words|length > 10 %}
+                                    {{ index.key_words|slice:":10" }}...
+                                {% else %}
+                                    {{ index.key_words }}
+                                {% endif %}
+                            </a>
+                        </p>
+                     </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<!--recent clicked index End-->
+<hr>
+<!--frequent_clicked index Start-->
+<p></p>
+<div class="container">
+    <div class="sortable-container">
+        {% for frequent_index in frequent_indexes %}
+            <div class="col-md-1 d-flex justify-content-center draggable-item">
+                {% if frequent_index.website_image %}
+                    <!-- for "New" or "Delete" or "To Do", not open in new tab-->
+                        <a href="{{ frequent_index.address }}" target="_blank" onclick="recordClick({{ frequent_index.id }})">
+                            <img class="card-img-top rounded-image" src="{{ frequent_index.website_image.url }}" alt="icon"> <br>
+                            <p class="blue-link small-text text-center">
+                                <!--if key_words more than 10, only show 10 letters-->
+                                {% if frequent_index.key_words|length > 10 %}
+                                    {{ frequent_index.key_words|slice:":10" }}...
+                                {% else %}
+                                    {{ frequent_index.key_words }}
+<!--                                    start: To Do icon add the number of to do tasks-->
+                                    {% if frequent_index.key_words == "ToDo" %}
+                                        <div>
+                                            <p>
+                                                {% if total_reminder_tasks %}
+                                                    <a href="{% url 'input_todo_tasks' %}" style="text-decoration: none; display: block;">
+                                                        <div style="background-color: red; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px;">
+                                                            <span style="color: white; font-size: 14px;">{{total_reminder_tasks}}</span>
+                                                        </div>
+                                                    </a>
+                                                {% endif %}
+                                                {% if total_tasks %}
+                                                    <a href="{% url 'input_todo_tasks' %}" style="text-decoration: none; display: block; margin-top: 5px;">
+                                                        <div style="background-color: green; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px;">
+                                                            <span style="color: white; font-size: 14px;">{{total_tasks}}</span>
+                                                        </div>
+                                                    </a>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </a>
+                {% else %}
+                     <div>
+                        <a href="{% url 'index_add_icon' frequent_index.id %}">
+                            <img class="card-img-top rounded-image" src="/media/website_image/AddIcon.PNG" alt="icon">
+                        </a>
+                        <p class="blue-link small-text text-center">
+                            <a href="{{ frequent_index.address }}" target="_blank" onclick="recordClick({{ frequent_index.id }})">
+                                <!-- if key_words more than 10, only show 10 letters-->
+                                {% if frequent_index.key_words|length > 10 %}
+                                    {{ frequent_index.key_words|slice:":10" }}...
+                                {% else %}
+                                    {{ frequent_index.key_words }}
+                                {% endif %}
+                            </a>
+                        </p>
+                     </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<!--frequent_clicked index End-->
+
+<!-- click time +1, and record click date time-->
+<script>
+    function recordClick(indexId) {
+        // Send AJAX request to record click
+        $.ajax({
+            type: 'POST',
+            url: '{% url "record_click" %}',
+            data: {
+                'index_id': indexId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                // Optionally handle the server response
+                console.log(response);
+                // Reload the page
+                location.reload();
+            }
+        });
+    }
+</script>
+
+
+{% endblock content %}

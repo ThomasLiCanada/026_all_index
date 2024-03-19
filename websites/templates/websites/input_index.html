@@ -1,0 +1,55 @@
+<!--templates/websites/input_index.html-->
+<title>New Index</title>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container block_input_index">
+    <p></p>
+    <h5>Index:</h5>
+    <p></p>
+
+    <!--templates/websites/input_index.html-->
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        {{ index_form.as_p }}
+
+        <!-- Add the error message for category and new_category -->
+        {% if index_form.errors %}
+            <div class="alert alert-danger">
+                {{ index_form.errors}}
+            </div>
+        {% endif %}
+
+        <button type="submit" name="index_form_submit">Save Index</button>
+        <button type="button" id="closeButton" style="margin-left: 30px; width: 100px;">Cancel</button>
+    </form>
+
+</div>
+
+<!-- JavaScript to close the tab when the button is clicked -->
+<script>
+    document.getElementById('closeButton').addEventListener('click', function() {
+        // Close the current browser tab
+        // window.close();
+        window.location.href = '{% url "desktop" %}';
+    });
+</script>
+
+
+<!--get input information from search box, and then curse to the end for continue to input-->
+<script>
+    // Check if 'key_words' query parameter exists in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const keyWords = urlParams.get('key_words');
+
+    // If 'key_words' is not null or empty, pre-fill the input field and move cursor to end
+    if (keyWords) {
+        const keyWordsInput = document.getElementById('id_key_words');
+        keyWordsInput.value = keyWords;
+        keyWordsInput.focus(); // Set focus to input field
+        keyWordsInput.setSelectionRange(keyWords.length, keyWords.length); // Move cursor to end of input
+    }
+</script>
+
+
+{% endblock content %}

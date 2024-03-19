@@ -1,0 +1,163 @@
+<!--websites/index_list.html-->
+
+<title>Index List (search)</title>
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .category-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .category-item {
+        width: 30%;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .index-item {
+        width: 50%;
+        margin-bottom: 5px;
+    }
+
+    .ellipsis-link {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 85%;
+    }
+    .card {
+        margin-bottom: 15px; /* Adjust the value as per your preference */
+    }
+</style>
+
+
+<!--search-->
+<p></p>
+<div class="row" style="margin: 12px">
+    <input type="text" id="searchInput" placeholder="Search ..." autofocus>
+</div>
+
+<div class="row" style="margin: 1px" id="six_blockers">
+<!--    Frequent (all) block-->
+    <div class="col-md-4 block1">
+        <div class="card card-body">
+            <h6>Frequent (All)</h6>
+            <div class="category-container" id="indexContainer">
+                {% for index in indexes|slice:":12" %}
+                    <div class="index-item">
+                        <a href="{{ index.address }}" target="_blank" onclick="recordClick({{ index.id }})" class="blue-link ellipsis-link">{{ index.key_words }}</a><br>
+                    </div>
+                {% endfor %}
+
+                {% if indexes|length > 12 %}
+                    <a href="#" class="blue-link more-link" style="margin-left: 90%;" id="loadMoreBtn" onclick="loadMore()"><i class="fas fa-angle-double-down"></i></a>
+                    <a href="#" class="blue-link more-link" style="margin-left: 90%; display: none;" id="loadLessBtn" onclick="loadLess()" ><i class="fas fa-angle-double-up"></i></a>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+<!--    each category blocks-->
+    {% for category, indexes in indexes_by_category.items %}
+        <div class="col-md-4">
+            <div class="card card-body">
+                <h6>{{ category.category_name }}</h6>
+                {% if category_pk == category.category_name %}
+<!--                show all indexes of this category------->
+                    <div class="category-container">
+
+                        {% for index in indexes %}
+                            <div class="index-item">
+                                <a href="{{ index.address }}" target="_blank" onclick="recordClick({{ index.id }})" class="blue-link ellipsis-link">{{index.key_words}}</a><br>
+                            </div>
+                        {% endfor %}
+                        {% if indexes|length > 12 %}
+                            <a href="{% url 'index_view_new' %}" class="blue-link more-link" style="margin-left: 90%;" id="loadLessBtnCategory1" onclick="loadLess()" ><i class="fas fa-angle-double-up"></i></a>
+                        {% endif %}
+
+                {% else %}
+<!--                        show only 12 indexes in each category -->
+                    <div class="category-container">
+                        {% for index in indexes|slice:":12" %}
+                            <div class="index-item">
+                                <a href="{{ index.address }}" target="_blank" onclick="recordClick({{ index.id }})" class="blue-link ellipsis-link">{{index.key_words}}</a><br>
+                            </div>
+                        {% endfor %}
+                        {% if indexes|length > 12 %}
+                            <a href="{% url 'index_view_new_category' category.category_name %}" class="blue-link more-link" style="margin-left: 90%;" id="loadMoreBtnCategory" ><i class="fas fa-angle-double-down"></i></a>
+<!--                            <a href="#" class="blue-link more-link" style="margin-left: 90%; display: none;" id="loadLessBtnCategory" onclick="loadLess()" ><i class="fas fa-angle-double-up"></i></a>-->
+                        {% endif %}
+
+                {% endif %}
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+<!--original index HTML i.e. all index table list-->
+<p></p>
+{% include 'websites/block_pages/all_index_list_table.html' %}
+
+<!--when input information in the search box, hide the six blocks' lists-->
+{% include 'websites/scripts/show_hide_six_blocks.html' %}
+
+<!--show search result-->
+{% include 'websites/scripts/show_search_index_result.html' %}
+
+
+<!--show more / show less for frequent-->
+<script>
+    var indexContainer = document.getElementById('indexContainer');
+    var loadMoreBtn = document.getElementById('loadMoreBtn');
+    var loadLessBtn = document.getElementById('loadLessBtn'); // Add this line
+    var allIndexes = [
+        {% for index in indexes %}
+            {
+                address: "{{ index.address }}",
+                id: {{ index.id }},
+                key_words: "{{ index.key_words }}"
+            },
+        {% endfor %}
+    ];
+
+    var currentIndex = 12; // Change the initial value to 12
+
+    function loadMore() {
+        for (var i = currentIndex; i < allIndexes.length; i++) {
+            var index = allIndexes[i];
+            var newIndexItem = document.createElement('div');
+            newIndexItem.className = 'index-item';
+            newIndexItem.innerHTML = '<a href="' + index.address + '" target="_blank" onclick="recordClick(' + index.id + ')" class="blue-link ellipsis-link">' + index.key_words + '</a><br>';
+            indexContainer.appendChild(newIndexItem);
+        }
+
+        currentIndex = allIndexes.length;
+        loadMoreBtn.style.display = 'none';
+        loadLessBtn.style.display = 'inline'; // Show the "Load Less" button
+    }
+
+    function loadLess() {
+        // Remove items added by "Load More"
+        for (var i = currentIndex - 1; i >= 12; i--) {
+            indexContainer.removeChild(indexContainer.lastChild);
+        }
+
+        currentIndex = 12;
+        loadMoreBtn.style.display = 'inline'; // Show the "Load More" button
+        loadLessBtn.style.display = 'none'; // Hide the "Load Less" button
+    }
+</script>
+
+{% endblock content %}

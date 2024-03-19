@@ -1,0 +1,20 @@
+<div class="row" style="margin-left: 20px; color: red;">
+
+    {% if reminder_tasks %}
+        <i class="fas fa-bell" style="color: #EDCD2D; font-size: 24px;"></i>
+    {% endif %}
+
+    {% for task in reminder_tasks %}
+        <div class="col-md-2"> <!-- Assuming you are using Bootstrap for a 12-column grid system, adjust the number accordingly -->
+            <a href="{% url 'update_todotask_view' task.id %}" class="blue-link ellipsis-link">{{ task.task_name }}</a>
+            <br>
+
+            <i class="fas fa-clock" style="color: #B3A702; font-size:10px"> {{ task.task_reminder1_date|date:"Y-m-d" }}</i>
+            <i class="fas fa-clock" style="color: #99350B; font-size:10px"> {{ task.task_due_date|date:"Y-m-d" }}</i>
+            <a href="{% url 'mark-task-done' task.id %}" ><i class="fas fa-check-circle tick-inside" style="font-size: 12px"></i></a>
+        </div>
+        {% if forloop.counter|divisibleby:6 and not forloop.last %}
+            </div><div class="row" style="margin-left: 20px; color: red;">
+        {% endif %}
+    {% endfor %}
+</div>

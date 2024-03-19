@@ -1,0 +1,64 @@
+<!-- block_1_3 To do function -->
+    <!-- Include Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+    .task-done {
+        color: green; /* Color for task done symbol */
+    }
+    .task-not-done {
+        color: red; /* Color for task not done symbol */
+    }
+    .task-ongoing {
+        color: #5AB16147; /* Color for ongoing task symbol */
+    }
+    .task-ongoing:hover {
+        color: green; /* Color change on hover */
+    }
+    .tick-inside {
+        color: #5AB16147; /* Color for tick */
+        font-size: 14px; /* Adjust size as needed */
+    }
+    .tick-inside:hover {
+        color: green; /* Color for tick */
+        font-size: 14px; /* Adjust size as needed */
+    }
+    .task-card {
+        margin-bottom: 5px; /* Adjust the margin bottom as needed */
+    }
+</style>
+
+<div class="col-md-6"> <!-- Set col-md-6 to create a two-column layout on medium-sized screens and above -->
+    <div class="card card-body">
+        <div class="row"> <!-- Create an inner row for the links -->
+            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                <a href="{% url 'input_todotask' %}" style="margin-right: 20px;" class="blue-link"><i class="fas fa-plus-circle"></i></a>
+                <input name="task_name" placeholder="Add a task…" style="width: 80%; height: 30px;">
+                <button type="submit" style="display: none;" >Add Task</button>
+            </form>
+        </div>
+    </div>
+
+    {% for task in tasks %}
+        <div class="card card-body task-card">
+            <div class="row"> <!-- Create an inner row for the links -->
+                <div class="col-md-12"> <!-- Use col to evenly distribute the links within the column -->
+                    <a href="{% url 'mark-task-done_in_function' task.id %}"><i class="fas fa-check-circle tick-inside" style="font-size: 16px"></i></a>
+                    <a href="{% url 'update_todotask_view_icon' task.id %}" class="blue-link ellipsis-link" >{{ task.task_name }}</a>
+                    {% if task.task_reminder1_date %}
+                        <i class="fas fa-clock" style="color: #B3A702; font-size:10px"> {{ task.task_reminder1_date|date:"Y-m-d" }}</i>
+                    {% endif %}
+                    {% if task.task_due_date %}
+                        <i class="fas fa-clock" style="color: #99350B; font-size:10px"> {{ task.task_due_date|date:"Y-m-d" }}</i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    function showMore(elementId) {
+        var moreLinks = document.getElementById(elementId);
+        moreLinks.style.display = (moreLinks.style.display === 'none') ? 'block' : 'none';
+    }
+</script>

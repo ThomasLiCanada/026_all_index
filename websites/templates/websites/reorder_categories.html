@@ -1,0 +1,46 @@
+<!-- reorder_categories.html -->
+
+<title>Reorder Categories</title>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<body>
+<div class="container">
+    <p></p>
+<h5>Reorder: Drag & move below Category</h5>
+    <p></p>
+    <ul id="sortable-list">
+        {% for category in categories %}
+            <li data-category-id="{{ category.id }}" style="font-size:18px">{{ category.category_name }}</li>
+        {% endfor %}
+    </ul>
+<a href="/">Home</a>
+</div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(function () {
+            $("#sortable-list").sortable({
+                update: function (event, ui) {
+                    var newOrder = $(this).sortable('toArray', { attribute: 'data-category-id' });
+                    $.ajax({
+                        method: 'POST',
+                        url: '{% url "reorder_categories" %}',
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            'category_order[]': newOrder
+                        },
+                        success: function (data) {
+                            if (data.success) {
+                                console.log('Categories reordered successfully.');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+
+{% endblock content %}

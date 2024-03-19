@@ -1,0 +1,14 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#searchInput').on('input', function(){
+            if($(this).val() === '') {
+                $('#six_blockers').show();
+                $('.index_list_table').hide();
+            } else {
+                $('#six_blockers').hide();
+                $('.index_list_table').show();
+            }
+        });
+    });
+</script>

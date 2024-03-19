@@ -1,0 +1,32 @@
+<div class="index_list_table" style="width: 90%;margin: 0 auto;">
+    <table id="dataTable" style="border-collapse: collapse; width: 100%;">
+        <thead style="position: sticky; top: 0; background-color: #c4c4be; z-index: 1;">
+        <tr>
+            <th>Key words</th>
+            <th>Link</th>
+        </tr>
+        </thead>
+        <tbody style="position: relative; z-index: 0;">
+        {% for index in indexes %}
+        <tr>
+            <td style="border: width: 70%;">
+                <a href="{{ index.address }}" target="_blank" onclick="recordClick({{ index.id }})" class="blue-link">{{index.key_words}}</a>
+                <a href="{% url 'update_index' index.id %}"><i class="fa fa-pencil"></i></a>
+            </td>
+            <td style="width: 30%">
+                <a href="{{ index.address }}" target="_blank" class="btn btn-sm btn-info"
+                   onclick="recordClick({{ index.id }})">open link</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+$(document).ready(function(){
+    // Initially hide
+    $('.index_list_table').hide();
+});
+</script>

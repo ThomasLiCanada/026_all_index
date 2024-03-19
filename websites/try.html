@@ -1,0 +1,26 @@
+<!--code root/templates/urls_list.html-->
+
+<title>urls list</title>
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container" style="margin-left: 30px">
+    <p></p>
+    <h3>website map / urls list</h3>
+
+    <hr>
+    <p></p>
+    <h7>Admin</h7><br>
+    <a href="/" style="margin-right: 20px;">home</a> <!--to root-->
+    <a href="{% url 'admin:index' %}" style="margin-right: 20px;">admin</a> <!--go to admin webpage-->
+<!--    add hyperlink here-->
+
+    <hr>
+    <p></p>
+    <h7>Function</h7><br>
+    <a href="{% url '/' %}" style="margin-right: 20px;" target="_blank">function name</a>
+<!--    add hyperlink here-->
+
+</div>
+{% endblock content %}
