@@ -1,0 +1,40 @@
+<!--code root/templates/urls_list.html-->
+
+<title>urls list</title>
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container" style="margin-left: 30px">
+    <p></p>
+    <h3>website map / urls list</h3>
+
+    <hr>
+    <p></p>
+    <h7>Admin</h7><br>
+    <a href="/" style="margin-right: 20px;">home</a> <!--to root-->
+    <a href="{% url 'admin:index' %}" style="margin-right: 20px;">admin</a> <!--go to admin webpage-->
+<!--    add hyperlink here-->
+
+    <hr>
+    <p></p>
+    <h7>Input</h7><br>
+<!--    <target="_blank"> for open hyperlink in new tab-->
+    <a href="{% url 'input_index' %}" style="margin-right: 20px;">input_index</a>
+    <a href="{% url 'reorder_categories' %}" style="margin-right: 20px;">reorder_categories</a>
+    <a href="{% url 'input_todo_tasks' %}" style="margin-right: 20px;">input_todo_tasks</a>
+<!--    add hyperlink here-->
+
+        <hr>
+    <p></p>
+    <h7>Output</h7><br>
+<!--    <target="_blank"> for open hyperlink in new tab-->
+    <a href="{% url 'desktop' %}" style="margin-right: 20px;">desktop (index icons list)</a>
+    <a href="{% url 'desktop_show_delete_symbol' %}" style="margin-right: 20px;">desktop_show_delete_symbol</a>
+    <a href="{% url 'index_list' %}" style="margin-right: 20px;">index_list</a>
+    <a href="{% url 'desktop_recent' %}" style="margin-right: 20px;">desktop_recent</a>
+    <a href="{% url 'desktop_work_only' %}" style="margin-right: 20px;">desktop_work_only</a>
+<!--    add hyperlink here-->
+
+</div>
+{% endblock content %}

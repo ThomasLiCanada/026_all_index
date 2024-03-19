@@ -1,0 +1,88 @@
+<!--\templates\snippets\header.html-->
+<p></p>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<style>
+    #navbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+    }
+
+    .navbar-link {
+        margin-left: 10px;
+        align-items: right;
+    }
+
+    @media (max-width: 576px) {
+        .navbar-link {
+            margin-left: 0;
+            margin-top: 10px; /* Adjust as needed */
+        }
+    }
+
+    .navbar-links-right {
+        margin-left: auto; /* Align items to the right */
+    }
+</style>
+
+<div id="navbar" class="pb-3 mb-0 border-bottom">
+    <div>
+        <a href="{% url 'urls_list' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            {% if request.user.is_authenticated %}
+            <span class="fs-5">Hello, {{request.user.username}}</span>
+            {% else %}
+            <span class="fs-5">Welcome</span>
+            {% endif %}
+        </a>
+        <a href="/" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5" style="margin-left: 10px;">Home</span>
+        </a>
+    </div>
+
+    <div class="navbar-links-right"> <!-- Added class here -->
+
+        <a href="{% url 'index_list' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fas fa-search"></i></span>
+        </a>
+
+        <a href="{% url 'reorder_categories' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fas fa-sort"></i></span>
+        </a>
+
+        <a href="{% url 'input_index' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fas fa-plus"></i></span>
+        </a>
+
+        <a href="{% url 'desktop_show_delete_symbol' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fas fa-minus"></i></span>
+        </a>
+
+        <a href="{% url 'input_todo_tasks' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fa-solid fa-list-check"></i></span>
+            {% if total_reminder_tasks %}
+                <span style="background-color: red; color: white; font-size: 14px; border-radius: 50%; text-align: center;">&nbsp;{{total_reminder_tasks}} &nbsp;</span>
+            {% endif %}
+        </a>
+
+        <a href="{% url 'index_list' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5">&#9783;</span>
+        </a>
+
+        <a href="/" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fas fa-thin fa-image"></i></span>
+        </a>
+
+        <a href="{% url 'desktop_recent' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fa-solid fa-clock-rotate-left"></i></span>
+        </a>
+
+        <a href="{% url 'desktop_work_only' %}" class="navbar-link link-body-emphasis text-decoration-none">
+            <span class="fs-5"><i class="fa-solid fa-briefcase"></i></span>
+        </a>
+
+    </div>
+</div>
